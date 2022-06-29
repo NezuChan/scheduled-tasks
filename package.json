@@ -1,0 +1,50 @@
+{
+  "name": "@nezuchan/scheduled-tasks",
+  "version": "1.0.0",
+  "description": "A Standalone scheduled tasks service for microserviced \"Discord\" bot.",
+  "main": "dist/dist.js",
+  "scripts": {
+    "start": "npm run build && node -r dotenv/config dist/index.js",
+    "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --fix --ext ts",
+    "build": "rimraf dist && swc src -d dist"
+  },
+  "type": "module",
+  "author": "KagChi",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@hazmi35/eslint-config": "^8.4.2",
+    "@swc/cli": "^0.1.57",
+    "@swc/core": "^1.2.205",
+    "@types/node": "^17.0.31",
+    "@typescript-eslint/eslint-plugin": "^5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
+    "eslint": "^8.18.0",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.7.4"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "@hazmi35/eslint-config/typescript"
+    ],
+    "rules": {}
+  },
+  "dependencies": {
+    "@nezuchan/cordis-brokers": "^1.4.0",
+    "@sapphire/pieces": "^3.3.4",
+    "@types/bull": "^3.15.8",
+    "bull": "^4.8.4",
+    "dotenv": "^16.0.1",
+    "pino": "^8.1.0",
+    "pino-pretty": "^8.1.0"
+  }
+}

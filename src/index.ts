@@ -46,5 +46,5 @@ if (cluster.isPrimary) {
         }
     }
 } else {
-    new TaskManager().initialize(Number(process.env.CLUSTER_ID));
+    await new TaskManager().initialize(Number(process.env.CLUSTER_ID));
 }

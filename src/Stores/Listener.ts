@@ -3,15 +3,18 @@
 import { Piece } from "@sapphire/pieces";
 import { Result } from "@sapphire/result";
 import EventEmitter from "node:events";
+import { Logger } from "pino";
 
 export abstract class Listener extends Piece {
     public readonly emitter: EventEmitter | null;
     public readonly event: string | symbol;
     public readonly once: boolean;
+    public readonly logger: Logger;
     private _listener: ((...args: any[]) => void) | null;
 
     public constructor(context: Piece.Context, public options: ListenerOptions) {
         super(context, options);
+        this.logger = this.container.manager.logger;
         this.emitter =
 			typeof options.emitter === "undefined"
 			    ? this.container.manager

@@ -2,18 +2,21 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
 /* eslint-disable class-methods-use-this */
 import { container, Piece, Store, StoreRegistry } from "@sapphire/pieces";
-import { Result } from "@sapphire/result";
 import Bull from "bull";
 import EventEmitter from "node:events";
 import { resolve } from "node:path";
 import pino from "pino";
 import { ListenerStore } from "../Stores/ListenerStore.js";
 import { Util } from "../Utilities/Util.js";
+import { createAmqp, RoutingPublisher, RpcSubscriber } from "@nezuchan/cordis-brokers";
+import { handleJob } from "../Utilities/handleJob.js";
 
 export class TaskManager extends EventEmitter {
     public stores = new StoreRegistry();
     public clusterId = parseInt(process.env.CLUSTER_ID!);
-
+    public amqpSender!: RoutingPublisher<string, Record<string, any>>;
+    public amqpReceiver!: RpcSubscriber<string, Record<string, any>>;
+    public amqpReceiverCluster!: RpcSubscriber<string, Record<string, any>>;
     public bull = new Bull(`${process.env.QUEUE_NAME!}-cluster-${this.clusterId}`, {
         redis: {
             host: process.env.REDIS_HOST!,
@@ -56,9 +59,26 @@ export class TaskManager extends EventEmitter {
     public async initialize(): Promise<void> {
         container.manager = this;
         this.logger.info(`Initializing Scheduled Tasks cluster ${this.clusterId}`);
-        // TODO: Forward to rabbitmq server.
-        const bullProcessResult = Result.from(() => void this.bull.process("*", () => { }));
-        if (bullProcessResult.isErr()) throw new Error(`Failed to initialize Scheduled Tasks cluster ${this.clusterId}, ${bullProcessResult.err()}`);
+        void this.bull.process("*", job => this.amqpSender.publish(job.name, typeof job.data === "object" ? job.data : JSON.stringify(job.data)));
+        const { channel } = await createAmqp(process.env.AMQP_HOST!);
+        this.amqpSender = new RoutingPublisher(channel);
+        this.amqpReceiver = new RpcSubscriber(channel);
+        this.amqpReceiverCluster = new RpcSubscriber(channel);
+        await this.amqpReceiver.init({
+            name: "scheduled-tasks.send",
+            cb: async message => {
+                const isJobReady = await this.bull.isReady();
+                return handleJob(message, isJobReady, this.clusterId);
+            }
+        });
+        await this.amqpReceiver.init({
+            name: `sender.post({ type: "add", payload: { message: "hello world" }, options: { delay: 5000 }, name: "testing" })-${this.clusterId}`,
+            cb: async message => {
+                const isJobReady = await this.bull.isReady();
+                return handleJob(message, isJobReady, this.clusterId);
+            }
+        });
+        await this.amqpSender.init({ name: "scheduled-tasks.recv", durable: true, exchangeType: "topic", useExchangeBinding: true });
         this.stores.register(new ListenerStore());
         await Promise.all([...this.stores.values()].map((store: Store<Piece>) => store.loadAll()));
         this.emit("ready", this);

@@ -131,3 +131,6 @@ dist
 .pnp.js
 yarn.lock
 package-lock.json
+
+# Etc
+test.js

@@ -42,7 +42,7 @@
   "dependencies": {
     "@nezuchan/cordis-brokers": "^1.5.3",
     "@sapphire/pieces": "^3.3.4",
-    "@sapphire/result": "^2.0.0",
+    "@sapphire/result": "^2.0.1",
     "@sapphire/utilities": "^3.7.0",
     "@types/amqplib": "^0.8.2",
     "bull": "^4.8.4",

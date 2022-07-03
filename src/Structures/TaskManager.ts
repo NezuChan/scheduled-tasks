@@ -68,14 +68,14 @@ export class TaskManager extends EventEmitter {
             name: "scheduled-tasks.send",
             cb: async message => {
                 const isJobReady = await this.bull.isReady();
-                return handleJob(message, isJobReady, this.clusterId);
+                return handleJob(message, isJobReady, this.clusterId, this);
             }
         });
         await this.amqpReceiver.init({
             name: `scheduled-tasks.send-cluster-${this.clusterId}`,
             cb: async message => {
                 const isJobReady = await this.bull.isReady();
-                return handleJob(message, isJobReady, this.clusterId);
+                return handleJob(message, isJobReady, this.clusterId, this);
             }
         });
         await this.amqpSender.init({ name: "scheduled-tasks.recv", durable: true, exchangeType: "topic", useExchangeBinding: true });

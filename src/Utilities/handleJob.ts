@@ -14,8 +14,6 @@ export async function handleJob(message: Record<string, any>, bull: Bull.Queue, 
                 return JSON.stringify({ message: "Please provide name of the job to be created !" });
             }
 
-            console.log(message.options);
-
             const job = await bull.add(cast<string>(message.name), message.payload, cast<Bull.JobOptions>(message.options));
             return JSON.stringify({ message: "Job added successfully !", jobId: job.id.toString(), fromCluster: clusterId });
         }

@@ -17,7 +17,7 @@ export class TaskManager extends EventEmitter {
     public amqpSender!: RoutingPublisher<string, Record<string, any>>;
     public amqpReceiver!: RpcSubscriber<string, Record<string, any>>;
     public amqpReceiverCluster!: RpcSubscriber<string, Record<string, any>>;
-    public bull = new Bull(`${process.env.QUEUE_NAME!}-cluster-${this.clusterId}`, {
+    public bull = new Bull(`${process.env.QUEUE_NAME ?? "scheduled-tasks"}-cluster-${this.clusterId}`, {
         redis: {
             host: process.env.REDIS_HOST!,
             port: parseInt(process.env.REDIS_PORT!),
@@ -65,20 +65,20 @@ export class TaskManager extends EventEmitter {
         this.amqpReceiver = new RpcSubscriber(channel);
         this.amqpReceiverCluster = new RpcSubscriber(channel);
         await this.amqpReceiver.init({
-            name: "scheduled-tasks.send",
+            name: `${process.env.AMQP_QUEUE_NAME ?? "scheduled-tasks"}.send`,
             cb: async message => {
                 const isJobReady = await this.bull.isReady();
                 return handleJob(message, isJobReady, this.clusterId, this);
             }
         });
         await this.amqpReceiverCluster.init({
-            name: `scheduled-tasks.send-cluster-${this.clusterId}`,
+            name: `${process.env.AMQP_QUEUE_NAME ?? "scheduled-tasks"}.send-cluster-${this.clusterId}`,
             cb: async message => {
                 const isJobReady = await this.bull.isReady();
                 return handleJob(message, isJobReady, this.clusterId, this);
             }
         });
-        await this.amqpSender.init({ name: "scheduled-tasks.recv", durable: true, exchangeType: "topic", useExchangeBinding: true });
+        await this.amqpSender.init({ name: `${process.env.AMQP_QUEUE_NAME ?? "scheduled-tasks"}.recv`, durable: true, exchangeType: "topic", useExchangeBinding: true });
         this.stores.register(new ListenerStore());
         await Promise.all([...this.stores.values()].map((store: Store<Piece>) => store.loadAll()));
         this.emit("ready", this);

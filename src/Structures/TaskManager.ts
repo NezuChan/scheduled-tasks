@@ -10,6 +10,8 @@ import { ListenerStore } from "../Stores/ListenerStore.js";
 import { Util } from "../Utilities/Util.js";
 import { createAmqp, RoutingPublisher, RpcSubscriber } from "@nezuchan/cordis-brokers";
 import { handleJob } from "../Utilities/handleJob.js";
+import { Result } from "@sapphire/result";
+import { cast } from "@sapphire/utilities";
 
 export class TaskManager extends EventEmitter {
     public stores = new StoreRegistry();
@@ -68,14 +70,24 @@ export class TaskManager extends EventEmitter {
             name: `${process.env.AMQP_QUEUE_NAME ?? "scheduled-tasks"}.send`,
             cb: async message => {
                 const isJobReady = await this.bull.isReady();
-                return handleJob(message, isJobReady, this.clusterId, this);
+                const result = await Result.fromAsync(() => handleJob(message, isJobReady, this.clusterId, this));
+                if (result.isErr()) {
+                    this.logger.error(result.unwrapErr());
+                    return JSON.stringify({ error: cast<string>(result.unwrapErr()).toString() });
+                }
+                return result.unwrap();
             }
         });
         await this.amqpReceiverCluster.init({
             name: `${process.env.AMQP_QUEUE_NAME ?? "scheduled-tasks"}.send-cluster-${this.clusterId}`,
             cb: async message => {
                 const isJobReady = await this.bull.isReady();
-                return handleJob(message, isJobReady, this.clusterId, this);
+                const result = await Result.fromAsync(() => handleJob(message, isJobReady, this.clusterId, this));
+                if (result.isErr()) {
+                    this.logger.error(result.unwrapErr());
+                    return JSON.stringify({ error: cast<string>(result.unwrapErr()).toString() });
+                }
+                return result.unwrap();
             }
         });
         await this.amqpSender.init({ name: `${process.env.AMQP_QUEUE_NAME ?? "scheduled-tasks"}.recv`, durable: true, exchangeType: "topic", useExchangeBinding: true });

@@ -15,7 +15,7 @@
   "devDependencies": {
     "@hazmi35/eslint-config": "^8.4.2",
     "@swc/cli": "^0.1.57",
-    "@swc/core": "^1.2.208",
+    "@swc/core": "^1.2.210",
     "@types/bull": "^3.15.8",
     "@types/node": "^17.0.31",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
@@ -40,7 +40,7 @@
     "rules": {}
   },
   "dependencies": {
-    "@nezuchan/cordis-brokers": "^1.5.3",
+    "@nezuchan/cordis-brokers": "^1.5.4",
     "@sapphire/pieces": "^3.3.4",
     "@sapphire/result": "^2.0.1",
     "@sapphire/utilities": "^3.7.0",

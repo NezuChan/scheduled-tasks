@@ -1,6 +1,6 @@
 {
   "name": "@nezuchan/scheduled-tasks",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Standalone scheduled tasks service for microserviced \"Discord\" bot.",
   "main": "dist/index.js",
   "scripts": {

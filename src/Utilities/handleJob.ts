@@ -193,8 +193,10 @@ export async function handleJob(message: Record<string, any>, bull: Bull.Queue, 
             return JSON.stringify({ message: "Jobs found !", jobs, fromCluster: clusterId });
         }
         default: {
-            manager.logger.warn(message, `Unhandled job type ${message.type}`);
-            return JSON.stringify({ message: "Unhandled job, please open issue if you need this to be handled  or this is missing from the implementation !" });
+            if (message.type) {
+                manager.logger.warn(message, `Unhandled job type ${message.type}`);
+                return JSON.stringify({ message: "Unhandled job, please open issue if you need this to be handled  or this is missing from the implementation !" });
+            }
         }
     }
 }

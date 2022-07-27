@@ -15,7 +15,7 @@
   "devDependencies": {
     "@hazmi35/eslint-config": "^8.4.2",
     "@swc/cli": "^0.1.57",
-    "@swc/core": "^1.2.218",
+    "@swc/core": "^1.2.219",
     "@types/amqplib": "^0.8.2",
     "@types/bull": "^3.15.8",
     "@types/node": "^17.0.31",
@@ -45,9 +45,9 @@
     "@sapphire/pieces": "^3.3.5",
     "@sapphire/result": "^2.0.1",
     "@sapphire/utilities": "^3.7.0",
-    "bull": "^4.8.4",
+    "bull": "^4.8.5",
     "dotenv": "^16.0.1",
-    "pino": "^8.3.0",
+    "pino": "^8.3.1",
     "pino-pretty": "^8.1.0"
   }
 }

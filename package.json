@@ -42,9 +42,9 @@
   },
   "dependencies": {
     "@nezuchan/cordis-brokers": "^1.5.6",
-    "@sapphire/pieces": "^3.3.5",
-    "@sapphire/result": "^2.1.1",
-    "@sapphire/utilities": "^3.8.0",
+    "@sapphire/pieces": "^3.5.0",
+    "@sapphire/result": "^2.3.2",
+    "@sapphire/utilities": "^3.9.0",
     "bull": "^4.8.5",
     "dotenv": "^16.0.1",
     "pino": "^8.3.1",

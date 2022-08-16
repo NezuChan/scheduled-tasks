@@ -44,7 +44,7 @@
     "@nezuchan/cordis-brokers": "^1.5.6",
     "@sapphire/pieces": "^3.5.0",
     "@sapphire/result": "^2.3.3",
-    "@sapphire/utilities": "^3.9.0",
+    "@sapphire/utilities": "^3.9.1",
     "bull": "^4.8.5",
     "dotenv": "^16.0.1",
     "pino": "^8.3.1",

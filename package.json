@@ -45,8 +45,8 @@
     "@sapphire/pieces": "^3.5.1",
     "@sapphire/result": "^2.4.1",
     "@sapphire/utilities": "^3.9.3",
-    "bull": "^4.9.0",
-    "dotenv": "^16.0.2",
+    "bull": "^4.10.0",
+    "dotenv": "^16.0.3",
     "pino": "^8.6.1",
     "pino-pretty": "^9.1.0"
   }

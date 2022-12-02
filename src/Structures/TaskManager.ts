@@ -19,12 +19,14 @@ export class TaskManager extends EventEmitter {
     public amqpSender!: RoutingPublisher<string, Record<string, any>>;
     public amqpReceiver!: RpcSubscriber<string, Record<string, any>>;
     public amqpReceiverCluster!: RpcSubscriber<string, Record<string, any>>;
+
     public bull = new Bull(`${process.env.QUEUE_NAME ?? "scheduled-tasks"}-cluster-${this.clusterId}`, {
         redis: {
             host: process.env.REDIS_HOST!,
             port: parseInt(process.env.REDIS_PORT!),
             username: process.env.REDIS_USERNAME,
-            password: process.env.REDIS_PASSWORD
+            password: process.env.REDIS_PASSWORD,
+            db: parseInt(process.env.REDIS_DB!)
         },
         defaultJobOptions: {
             removeOnComplete: true,

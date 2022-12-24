@@ -17,5 +17,6 @@
 - Configure-able total cluster !
 - Using bull's !
 - Using RabbitMQ to communicate !
+- Redis Clusters support
 
 Being used in production by NezukoChan, and more.

@@ -13,6 +13,8 @@ import { handleJob } from "../Utilities/handleJob.js";
 import { Result } from "@sapphire/result";
 import { cast } from "@sapphire/utilities";
 
+import Redis, { ClusterNode, NodeRole } from "ioredis";
+
 export class TaskManager extends EventEmitter {
     public stores = new StoreRegistry();
     public clusterId = parseInt(process.env.CLUSTER_ID!);
@@ -21,12 +23,25 @@ export class TaskManager extends EventEmitter {
     public amqpReceiverCluster!: RpcSubscriber<string, Record<string, any>>;
 
     public bull = new Bull(`${process.env.QUEUE_NAME ?? "scheduled-tasks"}-cluster-${this.clusterId}`, {
-        redis: {
-            host: process.env.REDIS_HOST!,
-            port: parseInt(process.env.REDIS_PORT!),
-            username: process.env.REDIS_USERNAME,
-            password: process.env.REDIS_PASSWORD,
-            db: parseInt(process.env.REDIS_DB!)
+        prefix: `{scheduled-tasks-cluster-${this.clusterId}}`,
+        createClient: () => {
+            const clusters = cast<ClusterNode[]>(JSON.parse(process.env.REDIS_CLUSTERS!));
+            if (clusters.length) {
+                return new Redis.Cluster(clusters, {
+                    scaleReads: cast<NodeRole>(process.env.REDIS_CLUSTER_SCALE_READS ?? "all"),
+                    redisOptions: {
+                        username: process.env.REDIS_USERNAME,
+                        password: process.env.REDIS_PASSWORD,
+                        db: parseInt(process.env.REDIS_DB!)
+                }});
+            }
+            return new Redis({
+                host: process.env.REDIS_HOST!,
+                port: parseInt(process.env.REDIS_PORT!),
+                username: process.env.REDIS_USERNAME,
+                password: process.env.REDIS_PASSWORD,
+                db: parseInt(process.env.REDIS_DB!)
+            });
         },
         defaultJobOptions: {
             removeOnComplete: true,

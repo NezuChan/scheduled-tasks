@@ -1,4 +1,4 @@
-FROM ghcr.io/hazmi35/node:18-dev-alpine as build-stage
+FROM ghcr.io/hazmi35/node:19-dev-alpine as build-stage
 
 LABEL name "Scheduled Tasks (Docker Build)"
 LABEL maintainer "KagChi"
@@ -17,7 +17,7 @@ RUN npm run build
 
 RUN npm prune --production
 
-FROM ghcr.io/hazmi35/node:18-alpine
+FROM ghcr.io/hazmi35/node:19-alpine
 
 LABEL name "Scheduled Tasks Production"
 LABEL maintainer "KagChi"

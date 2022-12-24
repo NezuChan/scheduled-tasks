@@ -33,7 +33,8 @@ export class TaskManager extends EventEmitter {
                         username: process.env.REDIS_USERNAME,
                         password: process.env.REDIS_PASSWORD,
                         db: parseInt(process.env.REDIS_DB!)
-                }});
+                    }
+                });
             }
             return new Redis({
                 host: process.env.REDIS_HOST!,

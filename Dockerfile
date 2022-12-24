@@ -17,7 +17,7 @@ RUN npm run build
 
 RUN npm prune --production
 
-FROM ghcr.io/hazmi35/node:18-dev-alpine
+FROM ghcr.io/hazmi35/node:18-alpine
 
 LABEL name "Scheduled Tasks Production"
 LABEL maintainer "KagChi"

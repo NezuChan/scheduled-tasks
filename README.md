@@ -19,4 +19,4 @@
 - Using RabbitMQ to communicate !
 - Redis Clusters support
 
-Being used in production by NezukoChan, and more.
+Being used in production by NezukoChan, Musical Tune, and more.

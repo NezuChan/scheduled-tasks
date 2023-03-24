@@ -1,6 +1,6 @@
 {
   "name": "@nezuchan/scheduled-tasks",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "A Standalone scheduled tasks service for microserviced \"Discord\" bot.",
   "license": "GPL-3.0",
   "author": "KagChi",

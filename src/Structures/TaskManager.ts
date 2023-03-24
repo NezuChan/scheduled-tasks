@@ -80,7 +80,7 @@ export class TaskManager extends EventEmitter {
     public async initialize(): Promise<void> {
         container.manager = this;
         this.logger.info(`Initializing Scheduled Tasks cluster ${this.clusterId}`);
-        void this.bull.process("*", job => this.amqpSender.publish(job.name, typeof job.data === "object" ? job.data : JSON.stringify(job.data)));
+        void this.bull.process("*", job => this.amqpSender.publish("", job.name, typeof job.data === "object" ? job.data : JSON.stringify(job.data)));
         const { channel } = await createAmqp(process.env.AMQP_HOST!);
         this.amqpSender = new RoutingPublisher(channel);
         this.amqpReceiver = new RpcSubscriber(channel);

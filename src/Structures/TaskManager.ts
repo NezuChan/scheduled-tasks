@@ -4,15 +4,12 @@
 import { container, Piece, Store, StoreRegistry } from "@sapphire/pieces";
 import Bull from "bull";
 import EventEmitter from "node:events";
-import { resolve } from "node:path";
-import pino from "pino";
 import { ListenerStore } from "../Stores/ListenerStore.js";
-import { Util } from "../Utilities/Util.js";
 import { createAmqp, RoutingPublisher, RpcSubscriber } from "@nezuchan/cordis-brokers";
 import { handleJob } from "../Utilities/handleJob.js";
 import { Result } from "@sapphire/result";
 import { cast } from "@sapphire/utilities";
-
+import { createLogger } from "./Logger.js";
 import Redis, { ClusterNode, NodeRole } from "ioredis";
 
 export class TaskManager extends EventEmitter {
@@ -51,31 +48,7 @@ export class TaskManager extends EventEmitter {
         }
     });
 
-    public logger = pino({
-        name: "scheduled-tasks",
-        timestamp: true,
-        level: process.env.NODE_ENV === "production" ? "info" : "trace",
-        formatters: {
-            bindings: () => ({
-                pid: "Scheduled Tasks"
-            })
-        },
-        transport: {
-            targets: [
-                { target: "pino/file", level: "info", options: { destination: resolve(process.cwd(), "logs", `tasks-${this.date()}.log`) } },
-                { target: "pino-pretty", level: process.env.NODE_ENV === "production" ? "info" : "trace", options: { translateTime: "SYS:yyyy-mm-dd HH:MM:ss.l o" } }
-            ]
-        }
-    });
-
-    public date(): string {
-        return Util.formatDate(Intl.DateTimeFormat("en-US", {
-            year: "numeric",
-            month: "numeric",
-            day: "numeric",
-            hour12: false
-        }));
-    }
+    public logger = createLogger("tasks", process.env.STORE_LOGS === "true", process.env.LOKI_HOST ? new URL(process.env.LOKI_HOST) : undefined);
 
     public async initialize(): Promise<void> {
         container.manager = this;

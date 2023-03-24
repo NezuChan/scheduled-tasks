@@ -7,9 +7,9 @@ WORKDIR /tmp/build
 
 RUN apk add --no-cache build-base git python3
 
-COPY package.json .
+COPY package*.json .
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 

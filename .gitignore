@@ -126,11 +126,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Lockfiles
-.yarn.lock
-.pnp.js
-yarn.lock
-package-lock.json
-
 # Etc
 test.js

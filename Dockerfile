@@ -1,34 +1,23 @@
-FROM ghcr.io/hazmi35/node:18-dev-alpine as build-stage
-
-LABEL name "Scheduled Tasks (Docker Build)"
-LABEL maintainer "KagChi"
+FROM golang:1.20-alpine as build-stage
 
 WORKDIR /tmp/build
 
-RUN apk add --no-cache build-base git python3
-
-COPY package*.json .
-
-RUN npm ci
-
 COPY . .
 
-RUN npm run build
+# Build the project
+RUN go build cmd/server/main.go
 
-RUN npm prune --production
+FROM alpine:3
 
-FROM ghcr.io/hazmi35/node:18-alpine
-
-LABEL name "Scheduled Tasks Production"
+LABEL name "NezukoChan Scheduled Task"
 LABEL maintainer "KagChi"
 
 WORKDIR /app
 
-RUN apk add --no-cache tzdata
+# Install needed deps
+RUN apk add --no-cache tini
 
-COPY --from=build-stage /tmp/build/package.json .
-COPY --from=build-stage /tmp/build/package-lock.json .
-COPY --from=build-stage /tmp/build/node_modules ./node_modules
-COPY --from=build-stage /tmp/build/dist ./dist
+COPY --from=build-stage /tmp/build/main main
 
-CMD node -r dotenv/config dist/index.js
+ENTRYPOINT ["tini", "--"]
+CMD ["/app/main"]

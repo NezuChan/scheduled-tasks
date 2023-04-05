@@ -12,4 +12,4 @@ jobs:
   test:
     uses: nezuchan/workflows/.github/workflows/golang-compile-test.yml@main
     with:
-      TARGET_FILE: "cmd/server/main.go"
+      TARGET_FILE: "."

@@ -1,7 +1,10 @@
 package main
 
-import "log"
+import (
+	"github.com/disgoorg/log"
+	_ "github.com/joho/godotenv/autoload"
+)
 
 func main() {
-	log.Println("鬼を捕まえる準備ができました !")
+	log.Info("を捕まえる準備ができました !")
 }

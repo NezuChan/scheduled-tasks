@@ -15,7 +15,7 @@ func (r *URLs) UnmarshalText(text []byte) error {
 	str := strings.TrimPrefix(string(text), "[")
 	str = strings.TrimSuffix(str, "]")
 	str = strings.ReplaceAll(str, string('"'), "")
-	str = strings.ReplaceAll(str, string("redis://"), "")
+	str = strings.ReplaceAll(str, "redis://", "")
 	*r = strings.Split(str, ", ")
 	return nil
 }
@@ -62,5 +62,8 @@ func InitRedis(conf Config) *Redis {
 	}
 
 	log.Infof("Connected to Redis server")
+
+	ProcessJob(client)
+
 	return &Redis{UniversalClient: client, config: conf}
 }

@@ -29,8 +29,8 @@
   },
   "dependencies": {
     "@nezuchan/cordis-brokers": "^2.0.2",
-    "@sapphire/pieces": "^3.6.2",
-    "@sapphire/result": "^2.6.2",
+    "@sapphire/pieces": "^3.6.3",
+    "@sapphire/result": "^2.6.3",
     "@sapphire/utilities": "^3.11.1",
     "bull": "^4.10.4",
     "dotenv": "^16.0.3",

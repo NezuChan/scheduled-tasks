@@ -63,7 +63,5 @@ func InitRedis(conf Config) *Redis {
 
 	log.Infof("Connected to Redis server")
 
-	ProcessJob(client)
-
 	return &Redis{UniversalClient: client, config: conf}
 }

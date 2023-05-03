@@ -1,9 +1,11 @@
 package lib
 
 import (
+	"github.com/disgoorg/log"
+	"github.com/nezuchan/scheduled-tasks/broker"
 	"github.com/nezuchan/scheduled-tasks/config"
-	"github.com/nezuchan/scheduled-tasks/lib/broker"
-	"github.com/nezuchan/scheduled-tasks/lib/redis"
+	"github.com/nezuchan/scheduled-tasks/constants"
+	"github.com/nezuchan/scheduled-tasks/redis"
 )
 
 type Task struct {
@@ -17,5 +19,19 @@ func InitTask(conf *config.Config) *Task {
 		Redis:  redis.InitRedis(conf.Redis),
 	}
 
+	err := task.Broker.Channel.ExchangeDeclare(
+		constants.TASKER_EXCHANGE,
+		"direct",
+		true,
+		true,
+		false,
+		false,
+		nil)
+
+	if err != nil {
+		log.Fatalf("Unable to declare exchange due to: %v", err)
+	}
+
+	redis.ProcessJob(task.Redis, *task.Broker)
 	return &task
 }

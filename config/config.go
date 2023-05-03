@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/caarlos0/env/v7"
 	"github.com/disgoorg/log"
-	"github.com/nezuchan/scheduled-tasks/lib/redis"
+	"github.com/nezuchan/scheduled-tasks/redis"
 )
 
 type Config struct {

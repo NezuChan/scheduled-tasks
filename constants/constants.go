@@ -1,5 +1,6 @@
 package constants
 
 const (
-	TASKER_EXCHANGE = "SCHEDULED-TASKS"
+	TASKER_EXCHANGE = "scheduled-tasks"
+	TASKER_SEND = "scheduled-tasks.send"
 )

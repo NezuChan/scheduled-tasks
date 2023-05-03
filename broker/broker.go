@@ -1,10 +1,13 @@
 package broker
 
 import (
+	"context"
 	"fmt"
-	"github.com/disgoorg/log"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"time"
+
+	"github.com/disgoorg/log"
+	"github.com/nezuchan/scheduled-tasks/constants"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type Broker struct {
@@ -63,7 +66,71 @@ func (broker *Broker) handleReconnect(amqpURI string) {
 			time.Sleep(time.Second * 5)
 		}
 
+		log.Infof("Re-connected to RabbitMQ server")
 		broker.Channel, _ = broker.Connection.Channel()
 		broker.handleReconnect(amqpURI)
+	}
+}
+
+
+func HandleReceive(broker Broker) {
+	q, err := broker.Channel.QueueDeclare(
+		constants.TASKER_SEND,
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		log.Fatalf("Unable to declare queue due to: %v", err)
+	}
+
+	err = broker.Channel.Qos(
+		1,
+		0,
+		false,
+	)
+
+	if err != nil {
+		log.Fatalf("Failed to set QoS due to: %v", err)
+	}
+
+	messages, err := broker.Channel.Consume(
+		q.Name,
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		log.Fatalf("Failed to consume message due to: %v", err)
+	}
+
+	for d := range messages {
+		go func(delivery amqp.Delivery) {
+			log.Infof("Received message: %s", delivery.Body)
+			err = broker.Channel.PublishWithContext(context.Background(),
+				"",
+				delivery.ReplyTo,
+				false,
+				false,
+				amqp.Publishing{
+					ContentType: "text/plain",
+					CorrelationId: delivery.CorrelationId,
+					Body:        []byte("Hello World!"),
+				},
+			)
+
+			if err != nil {
+				log.Fatalf("Failed to publish message due to: %v", err)
+			}
+
+			delivery.Ack(false)
+		}(d)
 	}
 }

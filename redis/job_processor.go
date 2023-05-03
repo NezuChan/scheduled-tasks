@@ -3,17 +3,19 @@ package redis
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/disgoorg/log"
 	"github.com/nezuchan/scheduled-tasks/broker"
 	"github.com/nezuchan/scheduled-tasks/constants"
 	"github.com/nezuchan/scheduled-tasks/snowflake"
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
-	"strconv"
-	"time"
 )
 
 func ProcessJob(client redis.UniversalClient, broker broker.Broker) {
-	AddTask(client, snowflake.GenerateNew(), time.Now().Add(10*time.Second), "o")
+	AddTask(client, snowflake.GenerateNew(), time.Now().Add(10*time.Second), "{\"t\":\"delay\",\"d\":{\"op\":2}}")
 
 	go func() {
 		for {
@@ -31,15 +33,24 @@ func ProcessJob(client redis.UniversalClient, broker broker.Broker) {
 			}
 			taskId := result[0]
 			err = client.ZRem(context.Background(), "scheduler", taskId).Err()
-			key, _ := fmt.Printf("scheduler_value:%s", taskId)
-			value, err := client.Get(context.Background(), string(rune(key))).Result()
 
 			if err != nil {
 				panic(err)
 			}
-			log.Infof("Running task with ID %s %s", taskId, value)
-			// TODO: Send the task to client. tell client that this task need to be executed on theirs.
-			broker.Channel.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE)
+
+			key := fmt.Sprintf("scheduler_value:%s", taskId)
+			value, err := client.Get(context.Background(), key).Result()
+
+			if err != nil {
+				panic(err)
+			}
+
+			log.Infof("Sending task to client with taskId %s", taskId)
+			// TODO: Add custom router from client data sent from.
+			broker.Channel.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE, "replica:0", false, false, amqp091.Publishing{
+				ContentType: "text/plain",
+				Body:        []byte(value),
+			})
 		}
 	}()
 }
@@ -49,12 +60,16 @@ func AddTask(client redis.UniversalClient, taskId string, runTime time.Time, dat
 		Score:  float64(runTime.Unix()),
 		Member: taskId,
 	}).Err()
+	
+	if err != nil {
+		panic(err)
+	}
 
-	key, _ := fmt.Printf("scheduler_value:%s", taskId)
-	err = client.Set(context.Background(), string(rune(key)), data, 0).Err()
+	err = client.Set(context.Background(), fmt.Sprintf("scheduler_value:%s", taskId), data, 0).Err()
 
 	if err != nil {
 		panic(err)
 	}
+
 	log.Infof("Added task with ID %s to run at %v.\n", taskId, runTime)
 }

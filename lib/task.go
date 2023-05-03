@@ -23,15 +23,16 @@ func InitTask(conf *config.Config) *Task {
 		constants.TASKER_EXCHANGE,
 		"direct",
 		true,
-		true,
 		false,
 		false,
-		nil)
+		false,
+		nil,
+	)
 
 	if err != nil {
 		log.Fatalf("Unable to declare exchange due to: %v", err)
 	}
 
-	redis.ProcessJob(task.Redis, *task.Broker)
+	redis.ProcessJob(task.Redis, *task.Broker); broker.HandleReceive(*task.Broker)
 	return &task
 }

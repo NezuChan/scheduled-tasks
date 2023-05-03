@@ -5,7 +5,7 @@ WORKDIR /tmp/build
 COPY . .
 
 # Build the project
-RUN go build cmd/server/main.go
+RUN go build .
 
 FROM alpine:3
 

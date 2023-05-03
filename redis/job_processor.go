@@ -40,6 +40,7 @@ func ProcessJob(client redis.UniversalClient, broker broker.Broker) {
 
 			key := fmt.Sprintf("scheduler_value:%s", taskId)
 			value, err := client.Get(context.Background(), key).Result()
+			client.Unlink(context.Background(), key)
 
 			if err != nil {
 				panic(err)

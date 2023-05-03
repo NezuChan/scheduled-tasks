@@ -68,7 +68,7 @@ func (broker *Broker) handleReconnect(amqpURI string) {
 
 		log.Infof("Re-connected to RabbitMQ server")
 		broker.Channel, _ = broker.Connection.Channel()
-		broker.handleReconnect(amqpURI)
+		go broker.handleReconnect(amqpURI)
 	}
 }
 

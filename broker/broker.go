@@ -2,12 +2,14 @@ package broker
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/disgoorg/log"
 	"github.com/nezuchan/scheduled-tasks/constants"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/redis/go-redis/v9"
 )
 
 type Broker struct {
@@ -73,7 +75,7 @@ func (broker *Broker) handleReconnect(amqpURI string) {
 }
 
 
-func HandleReceive(broker Broker) {
+func HandleReceive(redis redis.UniversalClient, broker Broker) {
 	q, err := broker.Channel.QueueDeclare(
 		constants.TASKER_SEND,
 		false,
@@ -113,24 +115,91 @@ func HandleReceive(broker Broker) {
 
 	for d := range messages {
 		go func(delivery amqp.Delivery) {
-			log.Infof("Received message: %s", delivery.Body)
-			err = broker.Channel.PublishWithContext(context.Background(),
-				"",
-				delivery.ReplyTo,
-				false,
-				false,
-				amqp.Publishing{
-					ContentType: "text/plain",
-					CorrelationId: delivery.CorrelationId,
-					Body:        []byte("Hello World!"),
-				},
-			)
+
+			var m Message
+			err := json.Unmarshal([]byte(delivery.Body), &m)
 
 			if err != nil {
-				log.Fatalf("Failed to publish message due to: %v", err)
+				log.Fatalf("Failed to unmarshal string: %v", err)
 			}
 
-			delivery.Ack(false)
+			log.Debugf("Received message: %s", delivery.Body)
+
+			switch m.T {
+				case constants.TASK_DELAY: {
+					log.Debugf("Received a action to create delated task: %s", m.D)
+
+					value, err := DelayJob(redis, broker, m)
+
+					if err != nil {
+						log.Fatalf("Failed to create delayed task due to: %v", err)
+					}
+
+					go ReplyBack(broker, delivery, value)
+					break
+				}
+
+				case constants.TASK_DELETE: {
+					log.Debugf("Received a action to delete task: %s", m.D)
+
+					value, err := DeleteJob(redis, broker, m)
+
+					if err != nil {
+						log.Fatalf("Failed to delete task due to: %v", err)
+					}
+
+					go ReplyBack(broker, delivery, value)
+					break
+				}
+
+				case constants.TASK_GET: {
+					log.Debugf("Received a action to get task: %s", m.D)
+
+					value, err := GetJob(redis, broker, m)
+
+					if err != nil {
+						log.Fatalf("Failed to get task due to: %v", err)
+					}
+
+					go ReplyBack(broker, delivery, value)
+					break
+				}
+
+				default: {
+					log.Warnf("Received a unknown action: %s", m.T)
+					delivery.Ack(false)
+					break
+				}
+			}
 		}(d)
 	}
+}
+
+func ReplyBack(broker Broker, delivery amqp.Delivery, value []byte) {
+	err := broker.Channel.PublishWithContext(context.Background(),
+		"",
+		delivery.ReplyTo,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			CorrelationId: delivery.CorrelationId,
+			Body: value,
+		},
+	)
+
+	if err != nil {
+		log.Fatalf("Failed to publish message due to: %v", err)
+	}
+
+	delivery.Ack(false)
+}
+
+type Message struct {
+	T string `json:"t"`
+	D struct {
+		Time  int         `json:"time"`
+		Data  interface{} `json:"data"`
+		Route *string 	  `json:"route"`
+	} `json:"d"`
 }

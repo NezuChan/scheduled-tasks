@@ -47,8 +47,8 @@ func ProcessJob(client redis.UniversalClient, broker broker.Broker) {
 			}
 
 			log.Infof("Sending task to client with taskId %s", taskId)
-			// TODO: Add custom router from client data sent from.
-			broker.Channel.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE, "replica:0", false, false, amqp091.Publishing{
+			// TODO: Add custom router from client data sent from. and probably docker replica support?
+			broker.Channel.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE, "*", false, false, amqp091.Publishing{
 				ContentType: "text/plain",
 				Body:        []byte(value),
 			})

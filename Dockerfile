@@ -17,7 +17,7 @@ WORKDIR /app
 # Install needed deps
 RUN apk add --no-cache tini
 
-COPY --from=build-stage /tmp/build/main main
+COPY --from=build-stage /tmp/build/scheduled-tasks main
 
 ENTRYPOINT ["tini", "--"]
 CMD ["/app/main"]

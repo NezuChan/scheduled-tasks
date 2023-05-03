@@ -9,7 +9,7 @@ RUN go build cmd/server/main.go
 
 FROM alpine:3
 
-LABEL name "NezukoChan Scheduled Task"
+LABEL name "NezuChan Scheduled Task"
 LABEL maintainer "KagChi"
 
 WORKDIR /app

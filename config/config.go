@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/caarlos0/env/v7"
+	"github.com/caarlos0/env/v8"
 	"github.com/disgoorg/log"
 	"github.com/nezuchan/scheduled-tasks/redis"
 )

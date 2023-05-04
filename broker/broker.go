@@ -167,7 +167,17 @@ func HandleReceive(redis redis.UniversalClient, broker Broker) {
 
 				default: {
 					log.Warnf("Received a unknown action: %s", m.T)
-					delivery.Ack(false)
+					
+					value, err := json.Marshal(map[string]interface{}{
+						"message": "unknown action",
+					})
+
+					if err != nil {
+						log.Fatalf("Failed to marshal string: %v", err)
+					}
+
+					go ReplyBack(broker, delivery, value)
+
 					break
 				}
 			}

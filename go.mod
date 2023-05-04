@@ -3,7 +3,6 @@ module github.com/nezuchan/scheduled-tasks
 go 1.20
 
 require (
-	github.com/caarlos0/env/v7 v7.1.0
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/disgoorg/log v1.2.0
 	github.com/joho/godotenv v1.5.1

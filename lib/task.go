@@ -22,7 +22,7 @@ func InitTask(conf *config.Config) *Task {
 	err := task.Broker.Channel.ExchangeDeclare(
 		constants.TASKER_EXCHANGE,
 		"direct",
-		true,
+		false,
 		false,
 		false,
 		false,

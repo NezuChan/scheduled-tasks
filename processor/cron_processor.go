@@ -26,7 +26,7 @@ func ProcessCronJob(client redis.UniversalClient, broker amqp091.Channel, name s
 				c.Stop()
 				client.Unlink(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_KEY_ROUTE, taskId))
 				client.Unlink(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_VALUE, name))
-				client.SRem(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_SETS, name)).Err()
+				client.SRem(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_SETS, fmt.Sprintf("%s:%s", taskId, name))).Err()
 				return
 			}
 
@@ -50,6 +50,6 @@ func ProcessCronJob(client redis.UniversalClient, broker amqp091.Channel, name s
 	} else {
 		client.Unlink(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_KEY_ROUTE, taskId))
 		client.Unlink(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_VALUE, name))
-		client.SRem(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_SETS, name)).Err()
+		client.SRem(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_SETS, fmt.Sprintf("%s:%s", taskId, name))).Err()
 	}
 }

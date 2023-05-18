@@ -64,7 +64,7 @@ func CronJob(client redis.UniversalClient, broker Broker, message Message) ([]by
 		}
 	}
 
-	client.SAdd(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_SETS, *message.D.Name), taskId).Err()
+	client.SAdd(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_SETS, *message.D.Name), fmt.Sprintf("%s:%s", taskId, *message.D.Name)).Err()
 
 	log.Infof("Added task with ID %s to run every %v.\n", taskId, timeVal)
 

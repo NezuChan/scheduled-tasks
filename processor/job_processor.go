@@ -1,4 +1,4 @@
-package redis
+package processor
 
 import (
 	"context"
@@ -7,13 +7,12 @@ import (
 	"time"
 
 	"github.com/disgoorg/log"
-	"github.com/nezuchan/scheduled-tasks/broker"
 	"github.com/nezuchan/scheduled-tasks/constants"
 	"github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 )
 
-func ProcessJob(client redis.UniversalClient, broker broker.Broker) {
+func ProcessJob(client redis.UniversalClient, broker amqp091.Channel) {
 	go func() {
 		for {
 			now := time.Now()
@@ -51,12 +50,12 @@ func ProcessJob(client redis.UniversalClient, broker broker.Broker) {
 			// TODO: Add docker replica support?
 
 			if err != redis.Nil {
-				broker.Channel.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE, route, false, false, amqp091.Publishing{
+				broker.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE, route, false, false, amqp091.Publishing{
 					ContentType: "text/plain",
 					Body:        []byte(value),
 				})
 			} else {
-				broker.Channel.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE, "*", false, false, amqp091.Publishing{
+				broker.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE, "*", false, false, amqp091.Publishing{
 					ContentType: "text/plain",
 					Body:        []byte(value),
 				})

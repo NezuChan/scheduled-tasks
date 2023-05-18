@@ -8,13 +8,13 @@ import (
 
 	"github.com/disgoorg/log"
 	"github.com/nezuchan/scheduled-tasks/constants"
-	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 )
 
 type Broker struct {
-	Connection   *amqp.Connection
-	Channel      *amqp.Channel
+	Connection   *amqp091.Connection
+	Channel      *amqp091.Channel
 	retryAttempt int
 }
 
@@ -23,9 +23,9 @@ func CreateBroker(amqpURI string) *Broker {
 	var err error
 
 	for {
-		broker.Connection, err = amqp.DialConfig(amqpURI,
-			amqp.Config{
-				Dial: amqp.DefaultDial(time.Second * 15),
+		broker.Connection, err = amqp091.DialConfig(amqpURI,
+			amqp091.Config{
+				Dial: amqp091.DefaultDial(time.Second * 15),
 			})
 
 		if err == nil {
@@ -47,7 +47,7 @@ func CreateBroker(amqpURI string) *Broker {
 }
 
 func (broker *Broker) handleReconnect(amqpURI string) {
-	onClose := broker.Connection.NotifyClose(make(chan *amqp.Error))
+	onClose := broker.Connection.NotifyClose(make(chan *amqp091.Error))
 	for {
 		<-onClose
 		log.Warnf("RabbitMQ connection lost. Reconnecting...")
@@ -55,8 +55,8 @@ func (broker *Broker) handleReconnect(amqpURI string) {
 			if broker.retryAttempt >= 3 {
 				panic(fmt.Sprintf("couldn't reconnect to amqp broker after %d attempts", broker.retryAttempt))
 			}
-			conn, err := amqp.DialConfig(amqpURI, amqp.Config{
-				Dial: amqp.DefaultDial(time.Second * 5),
+			conn, err := amqp091.DialConfig(amqpURI, amqp091.Config{
+				Dial: amqp091.DefaultDial(time.Second * 5),
 			})
 			broker.retryAttempt += 1
 			if err == nil {
@@ -114,7 +114,7 @@ func HandleReceive(redis redis.UniversalClient, broker Broker) {
 	}
 
 	for d := range messages {
-		go func(delivery amqp.Delivery) {
+		go func(delivery amqp091.Delivery) {
 
 			var m Message
 			err := json.Unmarshal([]byte(delivery.Body), &m)
@@ -165,6 +165,19 @@ func HandleReceive(redis redis.UniversalClient, broker Broker) {
 					break
 				}
 
+				case constants.TASK_CRON: {
+					log.Debugf("Received a action to get task: %s", m.D)
+
+					value, err := CronJob(redis, broker, m)
+
+					if err != nil {
+						log.Fatalf("Failed to create cron job task due to: %v", err)
+					}
+
+					go ReplyBack(broker, delivery, value)
+					break
+				}
+
 				default: {
 					log.Warnf("Received a unknown action: %s", m.T)
 					
@@ -185,13 +198,13 @@ func HandleReceive(redis redis.UniversalClient, broker Broker) {
 	}
 }
 
-func ReplyBack(broker Broker, delivery amqp.Delivery, value []byte) {
+func ReplyBack(broker Broker, delivery amqp091.Delivery, value []byte) {
 	err := broker.Channel.PublishWithContext(context.Background(),
 		"",
 		delivery.ReplyTo,
 		false,
 		false,
-		amqp.Publishing{
+		amqp091.Publishing{
 			ContentType: "text/plain",
 			CorrelationId: delivery.CorrelationId,
 			Body: value,
@@ -208,8 +221,9 @@ func ReplyBack(broker Broker, delivery amqp.Delivery, value []byte) {
 type Message struct {
 	T string `json:"t"`
 	D struct {
-		Time  int         `json:"time"`
+		Time  interface{} `json:"time"`
 		Data  interface{} `json:"data"`
-		Route *string 	  `json:"route"`
+		Name  *string     `json:"name"`
+		Route *string     `json:"route"`
 	} `json:"d"`
 }

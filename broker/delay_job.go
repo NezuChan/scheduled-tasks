@@ -13,7 +13,22 @@ import (
 )
 
 func DelayJob(client redis.UniversalClient,broker Broker, message Message) ([]byte, error) {
-	later := time.Now().Add(time.Duration((message.D.Time / 1000) * int(time.Second)))
+	var timeVal int
+	switch t := message.D.Time.(type) {
+	case int:
+		timeVal = t
+	case float64:
+		timeVal = int(t)
+	default:
+		return json.Marshal(map[string]interface{}{
+			"t": constants.TASK_DELAY,
+			"d": map[string]interface{}{
+				"message": "Not a number",
+			},
+		})
+	}
+
+	later := time.Now().Add(time.Duration((timeVal / 1000) * int(time.Second)))
 	taskId := snowflake.GenerateNew()
 	
 	err := client.ZAdd(context.Background(), constants.TASK_REDIS_KEY, redis.Z{

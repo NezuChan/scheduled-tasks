@@ -5,6 +5,7 @@ import (
 	"github.com/nezuchan/scheduled-tasks/broker"
 	"github.com/nezuchan/scheduled-tasks/config"
 	"github.com/nezuchan/scheduled-tasks/constants"
+	"github.com/nezuchan/scheduled-tasks/processor"
 	"github.com/nezuchan/scheduled-tasks/redis"
 )
 
@@ -33,6 +34,7 @@ func InitTask(conf *config.Config) *Task {
 		log.Fatalf("Unable to declare exchange due to: %v", err)
 	}
 
-	redis.ProcessJob(task.Redis, *task.Broker); broker.HandleReceive(task.Redis, *task.Broker)
+	processor.ProcessJob(task.Redis, *task.Broker.Channel); broker.HandleReceive(task.Redis, *task.Broker)
+	// TODO: Run existing cron job tasks
 	return &task
 }

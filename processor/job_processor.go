@@ -47,8 +47,6 @@ func ProcessJob(client redis.UniversalClient, broker amqp091.Channel) {
 			client.Unlink(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_KEY_ROUTE, taskId))
 			log.Infof("Sending task to client with taskId %s", taskId)
 
-			// TODO: Add docker replica support?
-
 			if err != redis.Nil {
 				broker.PublishWithContext(context.Background(), constants.TASKER_EXCHANGE, route, false, false, amqp091.Publishing{
 					ContentType: "text/plain",

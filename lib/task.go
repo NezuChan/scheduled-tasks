@@ -1,6 +1,9 @@
 package lib
 
 import (
+	"context"
+	"strings"
+
 	"github.com/disgoorg/log"
 	"github.com/nezuchan/scheduled-tasks/broker"
 	"github.com/nezuchan/scheduled-tasks/config"
@@ -35,6 +38,14 @@ func InitTask(conf *config.Config) *Task {
 	}
 
 	processor.ProcessJob(task.Redis, *task.Broker.Channel); broker.HandleReceive(task.Redis, *task.Broker)
-	// TODO: Run existing cron job tasks
+
+	Members := task.Redis.SMembers(context.Background(), constants.TASK_REDIS_CRON_SETS).Val()
+
+	for _, member := range Members {
+		taskId := strings.Split(member, ":")[0]
+		name := strings.Split(member, ":")[1]
+
+		processor.ProcessCronJob(task.Redis, *task.Broker.Channel, name, taskId)
+	}
 	return &task
 }

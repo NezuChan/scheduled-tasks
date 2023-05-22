@@ -37,15 +37,25 @@ func InitTask(conf *config.Config) *Task {
 		log.Fatalf("Unable to declare exchange due to: %v", err)
 	}
 
-	processor.ProcessJob(task.Redis, *task.Broker.Channel); broker.HandleReceive(task.Redis, *task.Broker)
+	go func () {
+		Delays := task.Redis.ZCard(context.Background(), constants.TASK_REDIS_KEY).Val()
 
-	Members := task.Redis.SMembers(context.Background(), constants.TASK_REDIS_CRON_SETS).Val()
+		log.Infof("Found %d delayed jobs", Delays)
+		processor.ProcessJob(task.Redis, *task.Broker.Channel); broker.HandleReceive(task.Redis, *task.Broker)
+	}()
 
-	for _, member := range Members {
-		taskId := strings.Split(member, ":")[0]
-		name := strings.Split(member, ":")[1]
+	go func ()  {
+		Members := task.Redis.SMembers(context.Background(), constants.TASK_REDIS_CRON_SETS).Val()
 
-		processor.ProcessCronJob(task.Redis, *task.Broker.Channel, name, taskId)
-	}
+		log.Infof("Found %d cron jobs", len(Members))
+
+		for _, member := range Members {
+			taskId := strings.Split(member, ":")[0]
+			name := strings.Split(member, ":")[1]
+
+			processor.ProcessCronJob(task.Redis, *task.Broker.Channel, name, taskId)
+		}
+	}()
+
 	return &task
 }

@@ -53,8 +53,8 @@ func CronJob(client redis.UniversalClient, broker Broker, message Message) ([]by
 		})
 	}
 
-	client.Set(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_KEY_ROUTE, taskId), value, 0).Err()
-	client.Set(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_VALUE, *message.D.Name), value, 0).Err()
+	client.Set(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_KEY_VALUE, taskId), value, 0).Err()
+	client.Set(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_VALUE, *message.D.Name), timeVal, 0).Err()
 
 	if message.D.Route != nil {
 		err = client.Set(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_KEY_ROUTE, taskId), *message.D.Route, 0).Err()
@@ -64,14 +64,14 @@ func CronJob(client redis.UniversalClient, broker Broker, message Message) ([]by
 		}
 	}
 
-	client.SAdd(context.Background(), fmt.Sprintf("%s:%s", constants.TASK_REDIS_CRON_SETS, *message.D.Name), fmt.Sprintf("%s:%s", taskId, *message.D.Name)).Err()
+	client.SAdd(context.Background(), constants.TASK_REDIS_CRON_SETS, fmt.Sprintf("%s:%s", taskId, *message.D.Name)).Err()
 
 	log.Infof("Added task with ID %s to run every %v.\n", taskId, timeVal)
 
 	processor.ProcessCronJob(client, *broker.Channel, *message.D.Name, taskId)
 
 	return json.Marshal(map[string]interface{}{
-		"t": constants.TASK_DELAY,
+		"t": constants.TASK_CRON,
 		"d": map[string]interface{}{
 			"taskId": taskId,
 		},

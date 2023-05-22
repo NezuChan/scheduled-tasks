@@ -10,7 +10,12 @@ require (
 	github.com/redis/go-redis/v9 v9.0.4
 )
 
-require github.com/robfig/cron v1.2.0
+require github.com/go-co-op/gocron v1.27.1
+
+require (
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+)
 
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

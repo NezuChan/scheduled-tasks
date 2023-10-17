@@ -3,14 +3,17 @@ module github.com/nezuchan/scheduled-tasks
 go 1.20
 
 require (
-	github.com/caarlos0/env/v8 v8.0.0
+	github.com/caarlos0/env/v9 v9.0.0
 	github.com/disgoorg/log v1.2.1
 	github.com/joho/godotenv v1.5.1
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/redis/go-redis/v9 v9.2.1
 )
 
-require github.com/go-co-op/gocron v1.35.2
+require (
+	github.com/caarlos0/env/v8 v8.0.0
+	github.com/go-co-op/gocron v1.35.2
+)
 
 require (
 	github.com/google/uuid v1.3.1 // indirect

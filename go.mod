@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/caarlos0/env/v10 v10.0.0
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/go-co-op/gocron v1.35.2
 )

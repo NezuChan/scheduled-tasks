@@ -1,6 +1,6 @@
 module github.com/nezuchan/scheduled-tasks
 
-go 1.21.0
+go 1.23.0
 
 toolchain go1.24.3
 
@@ -15,7 +15,7 @@ require (
 require (
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/go-co-op/gocron v1.37.0
-	github.com/go-co-op/gocron/v2 v2.16.1
+	github.com/go-co-op/gocron/v2 v2.16.2
 )
 
 require (

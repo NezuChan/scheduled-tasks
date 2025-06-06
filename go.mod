@@ -2,14 +2,14 @@ module github.com/nezuchan/scheduled-tasks
 
 go 1.23.0
 
-toolchain go1.24.3
+toolchain go1.24.4
 
 require (
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/disgoorg/log v1.2.1
 	github.com/joho/godotenv v1.5.1
 	github.com/rabbitmq/amqp091-go v1.10.0
-	github.com/redis/go-redis/v9 v9.9.0
+	github.com/redis/go-redis/v9 v9.10.0
 )
 
 require (

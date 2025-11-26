@@ -9,13 +9,13 @@ require (
 	github.com/disgoorg/log v1.2.1
 	github.com/joho/godotenv v1.5.1
 	github.com/rabbitmq/amqp091-go v1.10.0
-	github.com/redis/go-redis/v9 v9.17.0
+	github.com/redis/go-redis/v9 v9.17.1
 )
 
 require (
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/go-co-op/gocron v1.37.0
-	github.com/go-co-op/gocron/v2 v2.18.1
+	github.com/go-co-op/gocron/v2 v2.18.2
 )
 
 require (

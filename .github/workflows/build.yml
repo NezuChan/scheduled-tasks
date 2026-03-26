@@ -10,6 +10,6 @@ on:
 
 jobs:
   test:
-    uses: nezuchan/workflows/.github/workflows/golang-compile-test.yml@main
+    uses: nezuchan/workflows/.github/workflows/golang-compile-test.yml@f1fd8acd1eb6ee76f944ab700ce7beafec5519c0 # main
     with:
       TARGET_FILE: "."

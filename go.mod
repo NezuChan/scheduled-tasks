@@ -8,14 +8,14 @@ require (
 	github.com/caarlos0/env/v11 v11.4.0
 	github.com/disgoorg/log v1.2.1
 	github.com/joho/godotenv v1.5.1
-	github.com/rabbitmq/amqp091-go v1.10.0
+	github.com/rabbitmq/amqp091-go v1.11.0
 	github.com/redis/go-redis/v9 v9.18.0
 )
 
 require (
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/go-co-op/gocron v1.37.0
-	github.com/go-co-op/gocron/v2 v2.21.0
+	github.com/go-co-op/gocron/v2 v2.21.1
 )
 
 require (

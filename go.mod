@@ -8,7 +8,7 @@ require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/disgoorg/log v1.2.1
 	github.com/joho/godotenv v1.5.1
-	github.com/rabbitmq/amqp091-go v1.11.0
+	github.com/rabbitmq/amqp091-go v1.12.0
 	github.com/redis/go-redis/v9 v9.20.1
 )
 
